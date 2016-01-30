@@ -47,6 +47,17 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
             ]
         }
         
+        let defaults = NSUserDefaults.standardUserDefaults()
+        if let storedSearch = defaults.objectForKey("storedSearch") as? String {
+            lastSearched = storedSearch
+        }
+        else {
+            lastSearched = "Popular"
+        }
+        
+        callYelpAPI(lastSearched)
+        searchBar.text = lastSearched
+        
         refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: "onRefresh", forControlEvents: UIControlEvents.ValueChanged)
         tableView.insertSubview(refreshControl, atIndex: 0)
@@ -65,6 +76,10 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
             self.filteredData = businesses
             self.tableView.reloadData()
         })
+        
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(input, forKey: "storedSearch")
+        defaults.synchronize()
         
         /* Example of Yelp search with more search options specified
         Business.searchWithTerm("Restaurants", sort: .Distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: NSError!) -> Void in
