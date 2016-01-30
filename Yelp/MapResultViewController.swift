@@ -30,7 +30,7 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.distanceFilter = 200
+        locationManager.distanceFilter = 500
         locationManager.requestWhenInUseAuthorization()
         
         let centerLocation = CLLocation(latitude: latitude, longitude: longitude)
@@ -85,6 +85,11 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(business.address!, completionHandler: {(placemarks: [CLPlacemark]?, error: NSError?) -> Void in
             if let placemark = (placemarks![0]) as? CLPlacemark {
+                
+//                var place = MKPlacemark(placemark: placemark)
+//                var place2D = CLLocationCoordinate2D.init(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
+//                self.addAnnotationAtCoordinateCLL("My annotation", place: place2D)
+//                
                 self.addAnnotationAtCoordinate(business.name!, place: MKPlacemark(placemark: placemark))
             }
         })
@@ -117,16 +122,28 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
             longitude = location.coordinate.longitude
             latitude = location.coordinate.latitude
             
+//            var place = CLLocationCoordinate2D.init(latitude: latitude, longitude: longitude)
+//            addAnnotationAtCoordinateCLL("My annotation", place: place)
+            
             // draw circular overlay centered in San Francisco
-//            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-//            let circleOverlay: MKCircle = MKCircle(centerCoordinate: coordinate, radius: 1000)
-//            mapView.addOverlay(circleOverlay)
+            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            let circleOverlay: MKCircle = MKCircle(centerCoordinate: coordinate, radius: 400)
+            mapView.addOverlay(circleOverlay)
         }
+    }
+    
+    func addAnnotationAtCoordinateCLL(name: String, place: CLLocationCoordinate2D) {
+        let annotation = MKPointAnnotation()
+        annotation.title = name
+        annotation.coordinate = place
+        mapView.addAnnotation(annotation)
     }
     
     func addAnnotationAtCoordinate(name: String, place: MKPlacemark) {
         let placeLat = place.coordinate.latitude
         let placeLong = place.coordinate.longitude
+        
+        print(name)
         
         let annotation = MKPointAnnotation()
         annotation.title = name
