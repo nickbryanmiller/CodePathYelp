@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Foundation
 
 class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
@@ -16,6 +17,8 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     var filteredData: [Business]?
     
     var lastSearched: String = ""
+    var timer = NSTimer()
+    var isFirstTime: Bool = true
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -61,7 +64,25 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: "onRefresh", forControlEvents: UIControlEvents.ValueChanged)
         tableView.insertSubview(refreshControl, atIndex: 0)
+        
+        timer = NSTimer.scheduledTimerWithTimeInterval(1, target:self, selector: Selector("updateMe"), userInfo: nil, repeats: true)
 
+    }
+    
+    func updateMe() {
+        if (isFirstTime) {
+            
+            let defaults = NSUserDefaults.standardUserDefaults()
+            if let storedSearch = defaults.objectForKey("storedSearch") as? String {
+                lastSearched = storedSearch
+            }
+            else {
+                lastSearched = "Popular"
+            }
+            
+            callYelpAPI(lastSearched)
+            isFirstTime = false
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -152,5 +173,11 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         callYelpAPI(lastSearched)
         
         self.refreshControl?.endRefreshing()
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if (segue.identifier == "TableToMap") {
+            
+        }
     }
 }

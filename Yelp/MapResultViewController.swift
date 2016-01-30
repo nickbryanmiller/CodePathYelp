@@ -18,6 +18,10 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
     var longitude: CLLocationDegrees = 0.0
     var latitude: CLLocationDegrees = 0.0
     
+    var businesses: [Business]?
+    
+    var lastSearched: String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,11 +36,61 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         let centerLocation = CLLocation(latitude: latitude, longitude: longitude)
         goToLocation(centerLocation)
         
+        let defaults = NSUserDefaults.standardUserDefaults()
+        if let storedSearch = defaults.objectForKey("storedSearch") as? String {
+            lastSearched = storedSearch
+        }
+        else {
+            lastSearched = "Popular"
+        }
+        
+        callYelpAPI(lastSearched!)
+        
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func callYelpAPI(input: String) {
+        lastSearched = input
+        Business.searchWithTerm(input, completion: { (businesses: [Business]!, error: NSError!) -> Void in
+            self.businesses = businesses
+            
+            for business in businesses {
+                if (business.address != "") {
+                    self.addByAddress(business)
+                }
+            }
+        })
+
+        
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(input, forKey: "storedSearch")
+        defaults.synchronize()
+        
+        /* Example of Yelp search with more search options specified
+        Business.searchWithTerm("Restaurants", sort: .Distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: NSError!) -> Void in
+        self.businesses = businesses
+        
+        for business in businesses {
+        print(business.name!)
+        print(business.address!)
+        }
+        }
+        */
+    }
+    
+    func addByAddress(business: Business) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(business.address!, completionHandler: {(placemarks: [CLPlacemark]?, error: NSError?) -> Void in
+            if let placemark = (placemarks![0]) as? CLPlacemark {
+//                self.mapView.addAnnotation(MKPlacemark(placemark: placemark))
+                self.addAnnotationAtCoordinate(business.name!, place: MKPlacemark(placemark: placemark))
+            }
+        })
+    }
+
     
     @IBAction func dismissView(sender: AnyObject) {
         dismissViewControllerAnimated(true, completion: nil)
@@ -65,16 +119,20 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
             latitude = location.coordinate.latitude
             
             // draw circular overlay centered in San Francisco
-            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            let circleOverlay: MKCircle = MKCircle(centerCoordinate: coordinate, radius: 1000)
-            mapView.addOverlay(circleOverlay)
+//            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+//            let circleOverlay: MKCircle = MKCircle(centerCoordinate: coordinate, radius: 1000)
+//            mapView.addOverlay(circleOverlay)
         }
     }
     
-    func addAnnotationAtCoordinate(coordinate: CLLocationCoordinate2D) {
+    func addAnnotationAtCoordinate(name: String, place: MKPlacemark) {
+        let placeLat = place.coordinate.latitude
+        let placeLong = place.coordinate.longitude
+        
         let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-        annotation.title = "An annotation!"
+        annotation.title = name
+        annotation.coordinate.latitude = placeLat
+        annotation.coordinate.longitude = placeLong
         mapView.addAnnotation(annotation)
     }
     
@@ -87,10 +145,15 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         }
         else {
             annotationView!.annotation = annotation
+            if #available(iOS 9.0, *) {
+                annotationView!.pinTintColor = UIColor.greenColor()
+            } else {
+                // Fallback on earlier versions
+            }
         }
         
         if #available(iOS 9.0, *) {
-            annotationView!.pinTintColor = UIColor.greenColor()
+            annotationView!.pinTintColor = UIColor.redColor()
         } else {
             // Fallback on earlier versions
         }
@@ -106,5 +169,5 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         circleView.lineWidth = 1
         return circleView
     }
-
+    
 }
