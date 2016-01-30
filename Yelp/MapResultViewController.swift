@@ -85,7 +85,6 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(business.address!, completionHandler: {(placemarks: [CLPlacemark]?, error: NSError?) -> Void in
             if let placemark = (placemarks![0]) as? CLPlacemark {
-//                self.mapView.addAnnotation(MKPlacemark(placemark: placemark))
                 self.addAnnotationAtCoordinate(business.name!, place: MKPlacemark(placemark: placemark))
             }
         })
@@ -140,25 +139,24 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         let identifier = "customAnnotationView"
         // custom pin annotation
         var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier) as? MKPinAnnotationView
-        if (annotationView == nil) {
-            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-        }
-        else {
-            annotationView!.annotation = annotation
+        
+        if (annotation.coordinate.latitude != self.latitude && annotation.coordinate.longitude != self.longitude) {
+            if (annotationView == nil) {
+                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            }
+            else {
+                annotationView!.annotation = annotation
+            }
+            
             if #available(iOS 9.0, *) {
-                annotationView!.pinTintColor = UIColor.greenColor()
+                annotationView!.pinTintColor = UIColor.redColor()
             } else {
                 // Fallback on earlier versions
             }
+            
+            // annotationView!.image = UIImage(named: "customAnnotationImage")
+
         }
-        
-        if #available(iOS 9.0, *) {
-            annotationView!.pinTintColor = UIColor.redColor()
-        } else {
-            // Fallback on earlier versions
-        }
-        
-//        annotationView!.image = UIImage(named: "customAnnotationImage")
         
         return annotationView
     }
