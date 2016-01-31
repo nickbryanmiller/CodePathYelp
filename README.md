@@ -26,6 +26,7 @@ The following **additional** features are implemented:
 - [X] Stores the last thing you searched and populates the table with that search.
 - [X] Added a mapview in the details page so you can see how far away you are on the map.
 - [X] Cleaned up the User Experience and the look.
+- [X] Added a pull to refresh feature.
 
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
