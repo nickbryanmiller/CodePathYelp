@@ -1,8 +1,8 @@
 //
-//  MapResultViewController.swift
+//  BusinessDetailViewController.swift
 //  Yelp
 //
-//  Created by Nicholas Miller on 1/26/16.
+//  Created by Nicholas Miller on 1/31/16.
 //  Copyright © 2016 Timothy Lee. All rights reserved.
 //
 
@@ -10,17 +10,23 @@ import UIKit
 import CoreLocation
 import MapKit
 
-class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
+class BusinessDetailViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
+    var business: Business!
+    
+    @IBOutlet weak var businessImageView: UIImageView!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var ratingsImageView: UIImageView!
+    @IBOutlet weak var reviewsLabel: UILabel!
+    @IBOutlet weak var distanceLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var mapView: MKMapView!
+    
     var locationManager : CLLocationManager!
     
     var longitude: CLLocationDegrees = 0.0
     var latitude: CLLocationDegrees = 0.0
-    
-    var businesses: [Business]?
-    
-    var lastSearched: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,77 +36,46 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.distanceFilter = 500
+        locationManager.distanceFilter = 100
         locationManager.requestWhenInUseAuthorization()
         
         let centerLocation = CLLocation(latitude: latitude, longitude: longitude)
         goToLocation(centerLocation)
         
-        let defaults = NSUserDefaults.standardUserDefaults()
-        if let storedSearch = defaults.objectForKey("storedSearch") as? String {
-            lastSearched = storedSearch
+        if (business.imageURL != nil) {
+            businessImageView.setImageWithURL(business.imageURL!)
         }
-        else {
-            lastSearched = "Popular"
+        if (business.name != nil) {
+            nameLabel.text = business.name!
+        }
+        if (business.distance != nil) {
+            distanceLabel.text = business.distance
+        }
+        if (business.ratingImageURL != nil) {
+            ratingsImageView.setImageWithURL(business.ratingImageURL!)
+        }
+        if (business.reviewCount != nil) {
+            reviewsLabel.text = "\(business.reviewCount!) Reviews"
+        }
+        if (business.address != nil) {
+            addressLabel.text = business.address
+        }
+        if (business.categories != nil) {
+            descriptionLabel.text = business.categories
         }
         
-        callYelpAPI(lastSearched!)
+        mapView.layer.cornerRadius = 5
+        mapView.clipsToBounds = true
         
+        if (business.address != nil && business.name != nil) {
+            addByAddress(business.address!, name: business.name!)
+        }
     }
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    func callYelpAPI(input: String) {
-        lastSearched = input
-        Business.searchWithTerm(input, completion: { (businesses: [Business]!, error: NSError!) -> Void in
-            self.businesses = businesses
-            
-            for business in businesses {
-                if (business.address != nil && business.name != nil) {
-                    self.addByAddress(business)
-                }
-            }
-        })
-
-        
-        let defaults = NSUserDefaults.standardUserDefaults()
-        defaults.setObject(input, forKey: "storedSearch")
-        defaults.synchronize()
-        
-        /* Example of Yelp search with more search options specified
-        Business.searchWithTerm("Restaurants", sort: .Distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: NSError!) -> Void in
-        self.businesses = businesses
-        
-        for business in businesses {
-        print(business.name!)
-        print(business.address!)
-        }
-        }
-        */
-    }
-    
-    func addByAddress(business: Business) {
-        let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(business.address!, completionHandler: {(placemarks: [CLPlacemark]?, error: NSError?) -> Void in
-            
-            if let placemark = (placemarks![0]) as? CLPlacemark {
-                
-//                var place = MKPlacemark(placemark: placemark)
-//                var place2D = CLLocationCoordinate2D.init(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
-//                self.addAnnotationAtCoordinateCLL("My annotation", place: place2D)
-//                
-                self.addAnnotationAtCoordinate(business.name!, place: MKPlacemark(placemark: placemark))
-            }
-        })
-    }
-
-    
-    @IBAction func dismissView(sender: AnyObject) {
-        dismissViewControllerAnimated(true, completion: nil)
-    }
-    
     
     func goToLocation(location: CLLocation) {
         let span = MKCoordinateSpanMake(0.1, 0.1)
@@ -123,8 +98,8 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
             longitude = location.coordinate.longitude
             latitude = location.coordinate.latitude
             
-//            var place = CLLocationCoordinate2D.init(latitude: latitude, longitude: longitude)
-//            addAnnotationAtCoordinateCLL("My annotation", place: place)
+            //            var place = CLLocationCoordinate2D.init(latitude: latitude, longitude: longitude)
+            //            addAnnotationAtCoordinateCLL("My annotation", place: place)
             
             // draw circular overlay centered in San Francisco
             let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -133,11 +108,14 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         }
     }
     
-    func addAnnotationAtCoordinateCLL(name: String, place: CLLocationCoordinate2D) {
-        let annotation = MKPointAnnotation()
-        annotation.title = name
-        annotation.coordinate = place
-        mapView.addAnnotation(annotation)
+    func addByAddress(address: String, name: String) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(address, completionHandler: {(placemarks: [CLPlacemark]?, error: NSError?) -> Void in
+            
+            if let placemark = (placemarks![0]) as? CLPlacemark {
+                self.addAnnotationAtCoordinate(name, place: MKPlacemark(placemark: placemark))
+            }
+        })
     }
     
     func addAnnotationAtCoordinate(name: String, place: MKPlacemark) {
@@ -171,7 +149,7 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
             }
             
             // annotationView!.image = UIImage(named: "customAnnotationImage")
-
+            
         }
         
         return annotationView
@@ -183,5 +161,5 @@ class MapResultViewController: UIViewController, CLLocationManagerDelegate, MKMa
         circleView.lineWidth = 1
         return circleView
     }
-    
+
 }

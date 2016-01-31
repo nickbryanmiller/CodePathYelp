@@ -179,5 +179,14 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         if (segue.identifier == "TableToMap") {
             
         }
+        else if (segue.identifier == "TableToDetail") {
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPathForCell(cell)
+            //            let movie = movies![indexPath!.row]
+            let business = filteredData![indexPath!.row]
+            
+            let detailviewController = segue.destinationViewController as! BusinessDetailViewController
+            detailviewController.business = business
+        }
     }
 }
