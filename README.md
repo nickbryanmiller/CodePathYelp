@@ -2,7 +2,7 @@
 
 **Yelp** is a Yelp search app using the [Yelp API](http://www.yelp.com/developers/documentation/v2/search_api).
 
-Time spent: **6** hours spent in total
+Time spent: **12** hours spent in total
 
 ## User Stories
 
@@ -17,24 +17,26 @@ The following **optional** features are implemented:
 
 - [X] Search results page
    - [ ] Infinite scroll for restaurant results.
-   - [ ] Implement map view of restaurant results.
-- [ ] Implement the restaurant detail page.
+   - [X] Implement map view of restaurant results.
+- [X] Implement the restaurant detail page.
 
 The following **additional** features are implemented:
 
 - [X] Changed the coloring of the cells and navigation bar and allowed the user to refresh.
-- [X] stores the last thing you searched and populates the table with that search.
+- [X] Stores the last thing you searched and populates the table with that search.
+- [X] Added a mapview in the details page so you can see how far away you are on the map.
+- [X] Cleaned up the User Experience and the look.
 
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
-1. 
-2. 
+1. How to check if a placemark is nil and properly dealing with them.
+2. How to get the name of each annotation to appear. It works unless I geocode the address to get the map location.
 
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.imgur.com/HH2Aiqf.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
