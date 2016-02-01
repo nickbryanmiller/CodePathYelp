@@ -22,6 +22,7 @@ The following **optional** features are implemented:
 
 The following **additional** features are implemented:
 
+- [X] Uses the user's current location for the map and for the Yelp search.
 - [X] Changed the coloring of the cells and navigation bar and allowed the user to refresh.
 - [X] Stores the last thing you searched and populates the table with that search.
 - [X] Added a mapview in the details page so you can see how far away you are on the map.
