@@ -3,7 +3,7 @@
 //  Yelp
 //
 //  Created by Nicholas Miller on 1/31/16.
-//  Copyright © 2016 Timothy Lee. All rights reserved.
+//  Copyright © 2016 Nicholas Miller. All rights reserved.
 //
 
 import UIKit
